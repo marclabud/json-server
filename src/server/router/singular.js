@@ -1,16 +1,18 @@
 const express = require('express')
 const write = require('./write')
 const getFullURL = require('./get-full-url')
+const delay = require('./delay')
 
 module.exports = (db, name) => {
   const router = express.Router()
+  router.use(delay)
 
-  function show (req, res, next) {
+  function show(req, res, next) {
     res.locals.data = db.get(name).value()
     next()
   }
 
-  function create (req, res, next) {
+  function create(req, res, next) {
     db.set(name, req.body).value()
     res.locals.data = db.get(name).value()
 
@@ -21,10 +23,9 @@ module.exports = (db, name) => {
     next()
   }
 
-  function update (req, res, next) {
+  function update(req, res, next) {
     if (req.method === 'PUT') {
-      db.set(name, req.body)
-        .value()
+      db.set(name, req.body).value()
     } else {
       db.get(name)
         .assign(req.body)
@@ -37,7 +38,8 @@ module.exports = (db, name) => {
 
   const w = write(db)
 
-  router.route('/')
+  router
+    .route('/')
     .get(show)
     .post(create, w)
     .put(update, w)

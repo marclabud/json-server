@@ -3,7 +3,7 @@ const yargs = require('yargs')
 const run = require('./run')
 const pkg = require('../../package.json')
 
-module.exports = function () {
+module.exports = function() {
   updateNotifier({ pkg }).notify()
 
   const argv = yargs
@@ -18,7 +18,7 @@ module.exports = function () {
       host: {
         alias: 'H',
         description: 'Set host',
-        default: '0.0.0.0'
+        default: 'localhost'
       },
       watch: {
         alias: 'w',
@@ -83,14 +83,15 @@ module.exports = function () {
     .boolean('quiet')
     .boolean('no-cors')
     .boolean('no-gzip')
-    .help('help').alias('help', 'h')
-    .version(pkg.version).alias('version', 'v')
+    .help('help')
+    .alias('help', 'h')
+    .version(pkg.version)
+    .alias('version', 'v')
     .example('$0 db.json', '')
     .example('$0 file.js', '')
     .example('$0 http://example.com/db.json', '')
     .epilog('https://github.com/typicode/json-server')
-    .require(1, 'Missing <source> argument')
-    .argv
+    .require(1, 'Missing <source> argument').argv
 
   run(argv)
 }

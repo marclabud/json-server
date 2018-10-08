@@ -1,8 +1,54 @@
 # Change Log
 
+## 0.14.0 - 2018-06-09
+
+* Listen to `localhost` by default, instead of `0.0.0.0`
+
+## 0.13.0 - 2018-05-30
+
+* Bundle all index page assets so that you access it without network connection
+* Drop Node 4 support
+
+## 0.12.2 - 2018-04-26
+
+* Add `_delay` query parameter
+* Upgrade `please-upgrade-node` dependency
+
+## 0.12.1 - 2017-11-02
+
+* Disable logging for static content requests
+* Remove bad `console.log`
+* Update `dependencies`
+* Use [`nanoid`](https://github.com/ai/nanoid)
+
+## 0.12.0 - 2017-08-02
+
+Re-include `body-parser` in `jsonServer.defaults()`
+
+If you're using JSON Server in an Express server and experience issues, you can disable it by passing 
+
+```js
+jsonServer.defaults({ bodyParser: false })
+```
+
+## 0.11.2 - 2017-07-10
+
+Fix `engines` field in `package.json`
+
+## 0.11.1 - 2017-07-10
+
+Add [please-upgrade-node](https://github.com/typicode/please-upgrade-node)
+
+## 0.11.0 - 2017-07-05
+
+Switch to [express-urlrewrite](https://github.com/kapouer/express-urlrewrite) to support rewriting query parameters (e.g.  `/articles?id=1 # → /posts/1`)
+
+If you're rewriting default routes, you'll need to update your `routes.json` file
+(see [add custom routes](https://github.com/typicode/json-server#add-custom-routes) for updated doc).
+
 ## 0.10.3 - 2017-06-28
 
-* Fix line-break error in CLI
+* Fix `line-break` error in CLI
 
 ## 0.10.2 - 2017-06-28
 

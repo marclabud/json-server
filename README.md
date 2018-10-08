@@ -1,4 +1,6 @@
-# JSON Server [![](https://travis-ci.org/typicode/json-server.svg?branch=master)](https://travis-ci.org/typicode/json-server) [![](https://badge.fury.io/js/json-server.svg)](http://badge.fury.io/js/json-server) [![](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/typicode/json-server?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# JSON Server [![](https://travis-ci.org/typicode/json-server.svg?branch=master)](https://travis-ci.org/typicode/json-server) [![](https://badge.fury.io/js/json-server.svg)](http://badge.fury.io/js/json-server)
+
+### Important: looking for your feedback, [JSON Server survey](https://goo.gl/forms/NRC6rlJGkHaDdTrP2), thanks 🙏
 
 Get a full fake REST API with __zero coding__ in __less than 30 seconds__ (seriously)
 
@@ -9,8 +11,19 @@ Created with <3 for front-end developers who need a quick back-end for prototypi
 
 See also:
 * :dog: [husky - Git hooks made easy](https://github.com/typicode/husky)
-* :camera: [tlapse - Create a timelapse of your web development](https://github.com/typicode/tlapse)
-* :hotel: [hotel - Process manager for developers with local .dev domain out of the box](https://github.com/typicode/hotel)
+* :hotel: [hotel - developer tool with local .localhost domain and https out of the box](https://github.com/typicode/hotel)
+* :atom_symbol: [react-fake-props - generate fake props for your React tests (Jest, Enzyme, ...)](https://github.com/typicode/react-fake-props)
+* :heartpulse: [Patreon page - if you want to support JSON Server or my other projects](https://www.patreon.com/typicode)
+
+## Sponsors
+
+<p>
+  <a href="https://tigersheet.com/" target="_blank">
+    <img src="https://i.imgur.com/RvvnNlB.png" height="60px">
+  </a>
+</p>
+
+[[Become a sponsor]](https://patreon.com/typicode)
 
 ## Table of contents
 
@@ -18,8 +31,8 @@ See also:
 
 <!-- toc -->
 
-- [Example](#example)
-- [Install](#install)
+- [Sponsorship](#sponsorship)
+- [Getting started](#getting-started)
 - [Routes](#routes)
   * [Plural routes](#plural-routes)
   * [Singular routes](#singular-routes)
@@ -49,6 +62,7 @@ See also:
     + [Custom output example](#custom-output-example)
     + [Rewriter example](#rewriter-example)
     + [Mounting JSON Server on another endpoint example](#mounting-json-server-on-another-endpoint-example)
+    + [API](#api)
   * [Deployment](#deployment)
 - [Links](#links)
   * [Video](#video)
@@ -60,9 +74,15 @@ See also:
 
 </details>
 
-## Example
+## Getting started
 
-Create a `db.json` file
+Install JSON Server 
+
+```
+npm install -g json-server
+```
+
+Create a `db.json` file with some data
 
 ```json
 {
@@ -79,10 +99,10 @@ Create a `db.json` file
 Start JSON Server
 
 ```bash
-$ json-server --watch db.json
+json-server --watch db.json
 ```
 
-Now if you go to [http://localhost:3000/posts/1](), you'll get
+Now if you go to [http://localhost:3000/posts/1](http://localhost:3000/posts/1), you'll get
 
 ```json
 { "id": 1, "title": "json-server", "author": "typicode" }
@@ -92,16 +112,8 @@ Also when doing requests, it's good to know that:
 
 - If you make POST, PUT, PATCH or DELETE requests, changes will be automatically and safely saved to `db.json` using [lowdb](https://github.com/typicode/lowdb).
 - Your request body JSON should be object enclosed, just like the GET output. (for example `{"name": "Foobar"}`)
-- Id values are not mutable. Any `id` value in the body of your PUT or PATCH request wil be ignored. Only a value set in a POST request wil be respected, but only if not already taken.
+- Id values are not mutable. Any `id` value in the body of your PUT or PATCH request will be ignored. Only a value set in a POST request will be respected, but only if not already taken.
 - A POST, PUT or PATCH request should include a `Content-Type: application/json` header to use the JSON in the request body. Otherwise it will result in a 200 OK but without changes being made to the data.
-
-## Install
-
-```bash
-$ npm install -g json-server
-```
-
-Requires Node 4+
 
 ## Routes
 
@@ -313,9 +325,10 @@ Create a `routes.json` file. Pay attention to start every route with `/`.
 
 ```json
 {
-  "/api/": "/",
-  "/blog/:resource/:id/show": "/:resource/:id",
-  "/blog/:category": "/posts?category=:category"
+  "/api/*": "/$1",
+  "/:resource/:id/show": "/:resource/:id",
+  "/posts/:category": "/posts?category=:category",
+  "/articles\\?id=:id": "/posts/:id"
 }
 ```
 
@@ -330,8 +343,9 @@ Now you can access resources using additional routes.
 ```sh
 /api/posts # → /posts
 /api/posts/1  # → /posts/1
-/blog/posts/1/show # → /posts/1
-/blog/javascript # → /posts?category=javascript
+/posts/1/show # → /posts/1
+/posts/javascript # → /posts?category=javascript
+/articles?id=1 # → /posts/1
 ```
 
 ### Add middlewares
@@ -359,7 +373,7 @@ json-server [options] <source>
 Options:
   --config, -c       Path to config file           [default: "json-server.json"]
   --port, -p         Set port                                    [default: 3000]
-  --host, -H         Set host                               [default: "0.0.0.0"]
+  --host, -H         Set host                             [default: "localhost"]
   --watch, -w        Watch file(s)                                     [boolean]
   --routes, -r       Path to routes file
   --middlewares, -m  Paths to middleware files                           [array]
@@ -488,7 +502,6 @@ server.listen(3000, () => {
   console.log('JSON Server is running')
 })
 ```
-
 #### Custom output example
 
 To modify responses, overwrite `router.render` method:
@@ -502,6 +515,18 @@ router.render = (req, res) => {
 }
 ```
 
+You can set your own status code for the response:
+
+
+```javascript
+// In this example we simulate a server side error response
+router.render = (req, res) => {
+  res.status(500).jsonp({
+    error: "error message here"
+  })
+}
+```
+
 #### Rewriter example
 
 To add rewrite rules, use `jsonServer.rewriter()`:
@@ -509,7 +534,7 @@ To add rewrite rules, use `jsonServer.rewriter()`:
 ```javascript
 // Add this before server.use(router)
 server.use(jsonServer.rewriter({
-  '/api/': '/',
+  '/api/*': '/$1',
   '/blog/:resource/:id/show': '/:resource/:id'
 }))
 ```
@@ -521,6 +546,27 @@ Alternatively, you can also mount the router on `/api`.
 ```javascript
 server.use('/api', router)
 ```
+
+#### API
+
+__`jsonServer.create()`__
+
+Returns an Express server.
+
+__`jsonServer.defaults([options])`__
+
+Returns middlewares used by JSON Server.
+
+* options
+  * `static` path to static files
+  * `logger` enable logger middleware (default: true)
+  * `bodyParser` enable body-parser middleware (default: true)
+  * `noCors` disable CORS (default: false)
+  * `readOnly` accept only GET requests (default: false)
+
+__`jsonServer.router([path|object])`__
+
+Returns JSON Server router.
 
 ### Deployment
 
@@ -540,6 +586,7 @@ You can deploy JSON Server. For example, [JSONPlaceholder](http://jsonplaceholde
 * [Fast prototyping using Restangular and Json-server](http://glebbahmutov.com/blog/fast-prototyping-using-restangular-and-json-server/)
 * [Create a Mock REST API in Seconds for Prototyping your Frontend](https://coligo.io/create-mock-rest-api-with-json-server/)
 * [No API? No Problem! Rapid Development via Mock APIs](https://medium.com/@housecor/rapid-development-via-mock-apis-e559087be066#.93d7w8oro)
+* [Zero Code REST With json-server](https://dzone.com/articles/zero-code-rest-with-json-server)
 
 ### Third-party tools
 

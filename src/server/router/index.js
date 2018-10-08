@@ -3,7 +3,8 @@ const methodOverride = require('method-override')
 const _ = require('lodash')
 const lodashId = require('lodash-id')
 const low = require('lowdb')
-const fileAsync = require('lowdb/lib/storages/file-async')
+const Memory = require('lowdb/adapters/Memory')
+const FileSync = require('lowdb/adapters/FileSync')
 const bodyParser = require('../body-parser')
 const validateData = require('./validate-data')
 const plural = require('./plural')
@@ -11,22 +12,19 @@ const nested = require('./nested')
 const singular = require('./singular')
 const mixins = require('../mixins')
 
-module.exports = (source, opts = { foreignKeySuffix: 'Id' }) => {
+module.exports = (db, opts = { foreignKeySuffix: 'Id' }) => {
+  if (typeof db === 'string') {
+    db = low(new FileSync(db))
+  } else if (!_.has(db, '__chain__') || !_.has(db, '__wrapped__')) {
+    db = low(new Memory()).setState(db)
+  }
+
   // Create router
   const router = express.Router()
 
   // Add middlewares
   router.use(methodOverride())
   router.use(bodyParser)
-
-  // Create database
-  let db
-  if (_.isObject(source)) {
-    db = low()
-    db.setState(source)
-  } else {
-    db = low(source, { storage: fileAsync })
-  }
 
   validateData(db.getState())
 
@@ -64,10 +62,14 @@ module.exports = (source, opts = { foreignKeySuffix: 'Id' }) => {
       return
     }
 
+    var sourceMessage = ''
+    // if (!_.isObject(source)) {
+    //   sourceMessage = `in ${source}`
+    // }
+
     const msg =
-      `Type of "${key}" (${typeof value}) ` +
-      (_.isObject(source) ? '' : `in ${source}`) + ' is not supported. ' +
-      'Use objects or arrays of objects.'
+      `Type of "${key}" (${typeof value}) ${sourceMessage} is not supported. ` +
+      `Use objects or arrays of objects.`
 
     throw new Error(msg)
   }).value()
